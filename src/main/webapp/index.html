@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="hu">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.css" />
+    <title>GraphQL POC</title>
+    <style>
+      .string { color: green; }
+      .number { color: darkorange; }
+      .boolean { color: blue; }
+      .null { color: magenta; }
+      .key { color: red; }
+      textarea{
+          min-height:122px;
+      }
+      .card{
+          min-height: 300px
+      }
+      #result{
+          max-height: 438px;
+          height: 438px;
+          overflow: auto;          
+      }
+      .btn-group{
+          width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-light bg-light shadow">
+      <a class="navbar-brand" href="/"><i class="fas fa-cat"></i> GraphQL POC - Emberek és macskák</a>
+    </nav>
+      
+      <div class="container mt-5">
+          <div class="row">
+              <div class="col-lg-6 mb-5">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            Lekérdezés
+                        </h5>
+                        <hr />
+                        <div class="form-group">
+                          <textarea id="query" class="form-control" placeholder="Query"></textarea>                        
+                        </div>
+                        <h6>Minta</h6>
+                    <div class="btn-group">
+                        <button data-query='{ users {id, name, regDate} , cats{id, name, isLive}}' class="btn btn-outline-info">Minden adat</button>                    
+                        <button data-query='{ users { id, name, regDate, cats { name}}}' class="btn btn-outline-info">Mindenki macskával</button>
+                        <button data-query='{ user(id: 1) { id, name, regDate, cats { name}}}' class="btn btn-outline-info">Egy ember macskákkal</button>
+                        <button data-query='{ user(name: "Béla 1") { id, name, regDate, cats { name}}}' class="btn btn-outline-info">Béla</button>
+                    </div>
+                    <div class="btn-group mt-2">
+                        <button data-query='{ cats { id, name } }' class="btn btn-outline-info">Macskák</button>
+                        <button data-query='{ cat(id:1) { id, name } }' class="btn btn-outline-info">Egy macska</button>
+                        <button data-query='{ cats {  name } }' class="btn btn-outline-info">Macskanevek</button>
+                        <button data-query='{ cats {  name }, users {name} }' class="btn btn-outline-info">Macskák és emberek</button>
+                    </div>
+                    <div class="btn-group mt-2">
+                        <button data-query='{ cat(id:1) { id, name }, users{name} }' class="btn btn-outline-info">Egy macska sok ember</button>
+                        <button data-query='{ user(id:1) {name}, cats { name } }' class="btn btn-outline-info">Egy ember sok macska</button>
+                        <button data-query='{ cat(name:"Macsek 2") { id, name } }' class="btn btn-outline-info">Macsek 2</button>
+                        <button data-query='{ users { name }}' class="btn btn-outline-info">Csak nevek</button>
+                    </div>
+                    <div class="btn-group mt-2">
+                        <button data-query='{ cats(isLive:true) { id, name, isLive } }' class="btn btn-outline-info">Élő macskák</button>
+                        <button data-query='{ cats(isLive:false) { id, name, isLive } }' class="btn btn-outline-info">Halott macskák</button>
+                        <button data-query='{ user(name:"Béla 1") { cats { name}}}' class="btn btn-outline-info">Béla 1 macskái</button>
+                    </div>
+                    </div>
+                    <div class="card-footer text-right">
+                        <button id="run" class="btn btn-info"><i class="fas fa-paw"></i> Futtatás</button>
+                    </div>
+                </div>               
+              </div>
+              <div class="col-lg-6">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            Eredmény
+                        </h5>
+                        <hr />
+                        <pre id="result">
+
+                        </pre>
+                    </div>
+                </div>
+              </div>
+          </div>
+      </div>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"  crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" crossorigin="anonymous"></script>
+    <script>
+
+         function syntaxHighlight(json) {
+              json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+              return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                  var cls = 'number';
+                  if (/^"/.test(match)) {
+                      if (/:$/.test(match)) {
+                          cls = 'key';
+                      } else {
+                          cls = 'string';
+                      }
+                  } else if (/true|false/.test(match)) {
+                      cls = 'boolean';
+                  } else if (/null/.test(match)) {
+                      cls = 'null';
+                  }
+                  return '<span class="' + cls + '">' + match + '</span>';
+              });
+          }
+
+        $(function(){
+
+          function postData(url = '', data = {}) {
+              return fetch(url, {
+                  method: 'POST', 
+                  mode: 'cors', 
+                  cache: 'no-cache', 
+                  credentials: 'same-origin', 
+                  headers: {
+                      'Content-Type': 'text/plain',
+                  },
+                  redirect: 'follow',
+                  referrer: 'no-referrer',
+                  body: data,
+              })
+              .then(response => response.json());
+          }
+          $("[data-query]").on("click", function(){
+            $("#query").val($(this).attr("data-query"));
+          });
+          $("#run").on("click", function() {
+             var query = $("#query").val();
+             postData("/gql/user", query).then(json => {
+                  var str = JSON.stringify(json, undefined, 4);
+                  $("#result").html(syntaxHighlight(str));
+             });
+          });
+        });
+    </script>
+  </body>
+</html>
