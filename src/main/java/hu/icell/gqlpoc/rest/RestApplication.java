@@ -6,6 +6,7 @@ import javax.ws.rs.core.Application;
 @ApplicationPath("/poc")
 public class RestApplication extends Application {
     public RestApplication(){
-        super();            
+        super();
+        //org.apache.log4j.BasicConfigurator.configure();
     }
 }

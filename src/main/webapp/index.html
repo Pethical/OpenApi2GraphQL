@@ -136,7 +136,7 @@
           });
           $("#run").on("click", function() {
              var query = $("#query").val();
-             postData("/gql/user", query).then(json => {
+             postData("/poc/gql", query).then(json => {
                   var str = JSON.stringify(json, undefined, 4);
                   $("#result").html(syntaxHighlight(str));
              });

@@ -7,6 +7,12 @@ package hu.icell.gqlpoc.rest;
 
 import hu.icell.gqlpoc.UserCatRepository;
 import hu.icell.gqlpoc.entity.MockRepository;
+import hu.icell.gqlpoc.entity.User;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -25,6 +31,9 @@ public class OpenApiEndPoint {
     @GET
     @Path("/user/{id}")
     @Produces("application/json")
+    @Operation(responses = {
+            @ApiResponse(content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class)))
+    })
     public Response GetUser(@PathParam("id") int id){
         return Response.ok(repository.findUserById(id)).build();
     }
@@ -51,6 +60,13 @@ public class OpenApiEndPoint {
             return Response.ok(repository.getCats()).build();
         }
         return Response.ok(repository.findCatByLive(isLive)).build();
+    }
+
+    @GET
+    @Produces("application/json")
+    @Path("/cats")
+    public Response GetAllCats() {
+        return Response.ok(repository.getCats()).build();
     }
 
     @GET    

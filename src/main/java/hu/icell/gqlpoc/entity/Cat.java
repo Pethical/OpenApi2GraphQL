@@ -7,6 +7,7 @@ package hu.icell.gqlpoc.entity;
 
 import io.leangen.graphql.annotations.GraphQLId;
 import io.leangen.graphql.annotations.GraphQLQuery;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 
 /**
  *

@@ -13,6 +13,7 @@
     <maven.compiler.target>1.8</maven.compiler.target>
     <failOnMissingWebXml>false</failOnMissingWebXml>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
   </properties>
   <repositories>
     <repository>
@@ -38,7 +39,7 @@
   </dependencyManagement>
 
   <build>
-    <finalName>gqlpoc</finalName>
+    <finalName>ROOT</finalName>
     <plugins>
        <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -47,10 +48,31 @@
       </plugin>
 
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.1</version>
+        <configuration>
+          <compilerArgument></compilerArgument>
+        </configuration>
+      </plugin>
+
+
+      <plugin>
         <groupId>io.thorntail</groupId>
         <artifactId>thorntail-maven-plugin</artifactId>
         <version>${version.thorntail}</version>
-        
+
+        <configuration>
+          <properties>
+            <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+            <jboss.modules.system.pkgs>org.jboss.logmanager</jboss.modules.system.pkgs>
+          </properties>
+          <jvmArguments>
+              <jvmArgument>-Djava.util.logging.manager=org.jboss.logmanager.LogManager -Djboss.modules.system.pkgs=org.jboss.logmanager -Xbootclasspath/p:F:/wf/modules/org/jboss/logmanager/main/jboss-logmanager-2.1.11.Final.jar -Xbootclasspath/p:F:/wf/modules/org/jboss/logmanager/log4j/main/jboss-logmanager-log4j-1.2.0.Final.jar</jvmArgument>
+          </jvmArguments>
+        </configuration>
+
+
         <executions>
           <execution>
             <goals>
@@ -59,8 +81,11 @@
           </execution>
         </executions>
       </plugin>
+
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
+        <version>3.0.0-M3</version>
         <configuration>
           <systemPropertyVariables>
             <test.web.dir>${project.basedir}/src/main/webapp</test.web.dir>
@@ -88,15 +113,34 @@
         <artifactId>spqr</artifactId>
         <version>0.10.0</version>
     </dependency>
+
     <dependency>
       <groupId>io.swagger.core.v3</groupId>
       <artifactId>swagger-jaxrs2</artifactId>
       <version>2.0.0</version>
     </dependency>
+
     <dependency>
       <groupId>io.swagger.core.v3</groupId>
       <artifactId>swagger-jaxrs2-servlet-initializer</artifactId>
       <version>2.0.0</version>
     </dependency>
+
+    <dependency>
+      <groupId>io.swagger.parser.v3</groupId>
+      <artifactId>swagger-parser</artifactId>
+      <version>2.0.14</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.28</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.logmanager</groupId>
+      <artifactId>jboss-logmanager</artifactId>
+      <version>2.1.14.Final</version>
+    </dependency>
+
   </dependencies>
 </project>
