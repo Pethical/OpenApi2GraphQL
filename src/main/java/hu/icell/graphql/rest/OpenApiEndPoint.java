@@ -3,11 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package hu.icell.gqlpoc.rest;
+package hu.icell.graphql.rest;
 
-import hu.icell.gqlpoc.UserCatRepository;
-import hu.icell.gqlpoc.entity.MockRepository;
-import hu.icell.gqlpoc.entity.User;
+import hu.icell.graphql.mock.UserCatRepository;
+import hu.icell.graphql.mock.repository.MockRepository;
+import hu.icell.graphql.mock.entity.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

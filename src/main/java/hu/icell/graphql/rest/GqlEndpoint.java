@@ -1,12 +1,12 @@
-package hu.icell.gqlpoc.rest;
+package hu.icell.graphql.rest;
 
 import graphql.ExecutionResult;
 import graphql.GraphQL;
 import graphql.schema.GraphQLSchema;
-import hu.icell.gqlpoc.CatService;
-import hu.icell.gqlpoc.UserService;
-import hu.icell.gqlpoc.entity.MockRepository;
-import hu.icell.gqlpoc.UserCatRepository;
+import hu.icell.graphql.mock.CatService;
+import hu.icell.graphql.mock.UserService;
+import hu.icell.graphql.mock.repository.MockRepository;
+import hu.icell.graphql.mock.UserCatRepository;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.Produces;
@@ -17,21 +17,20 @@ import javax.ws.rs.POST;
 @Path("/gql")
 public class GqlEndpoint {
 
-    private final GraphQLSchema schema;
     private final GraphQL graphQL;
 
     public GqlEndpoint() {
         UserCatRepository repository = new MockRepository();
-        schema = new GraphQLSchemaGenerator()
+        GraphQLSchema schema = new GraphQLSchemaGenerator()
                 .withOperationsFromSingleton(new UserService(repository))
-                .withOperationsFromSingleton(new CatService(repository))                
+                .withOperationsFromSingleton(new CatService(repository))
                 .generate();
         graphQL = new GraphQL.Builder(schema).build();
     }
     
     @POST
     @Produces("application/json")
-    public Response user(String query) {
+    public Response query(String query) {
         if (query == null || query.isEmpty()) {
             return Response.status(400).build();
         }

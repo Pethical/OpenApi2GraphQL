@@ -1,11 +1,14 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (c) 2019 i-Cell Mobilsoft Zrt. All rights reserved
+ * Author: Péter Németh (Pethical)
+ * This code is licensed under MIT license (see LICENSE.md for details)
  */
-package hu.icell.gqlpoc.entity;
+package hu.icell.graphql.mock.repository;
 
-import hu.icell.gqlpoc.UserCatRepository;
+import hu.icell.graphql.mock.UserCatRepository;
+import hu.icell.graphql.mock.entity.Cat;
+import hu.icell.graphql.mock.entity.User;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -63,9 +66,9 @@ public class MockRepository implements UserCatRepository {
         if (name == null || name.isEmpty()) {
             return null;
         }
-        for (int i = 0; i < users.size(); i++) {
-            if (name.equals(users.get(i).getName())) {
-                return users.get(i);
+        for (User user : users) {
+            if (name.equals(user.getName())) {
+                return user;
             }
         }
         return null;
@@ -76,9 +79,9 @@ public class MockRepository implements UserCatRepository {
         if (name == null || name.isEmpty()) {
             return null;
         }
-        for (int i = 0; i < cats.size(); i++) {
-            if (name.equals(cats.get(i).getName())) {
-                return cats.get(i);
+        for (Cat cat : cats) {
+            if (name.equals(cat.getName())) {
+                return cat;
             }
         }
         return null;
@@ -87,9 +90,9 @@ public class MockRepository implements UserCatRepository {
     @Override
     public Collection<Cat> findCatByLive(boolean isLive) {
         List<Cat> result = new ArrayList<>();
-        for (int i = 0; i < cats.size(); i++) {
-            if (cats.get(i).isLive() == isLive) {
-                result.add(cats.get(i));
+        for (Cat cat : cats) {
+            if (cat.isLive() == isLive) {
+                result.add(cat);
             }
         }
         return result;
