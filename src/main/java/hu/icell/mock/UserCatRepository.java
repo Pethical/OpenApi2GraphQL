@@ -3,10 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package hu.icell.graphql.mock;
+package hu.icell.mock;
 
-import hu.icell.graphql.mock.entity.Cat;
-import hu.icell.graphql.mock.entity.User;
+import hu.icell.mock.entity.Cat;
+import hu.icell.mock.entity.User;
+
 import java.util.Collection;
 import java.util.List;
 

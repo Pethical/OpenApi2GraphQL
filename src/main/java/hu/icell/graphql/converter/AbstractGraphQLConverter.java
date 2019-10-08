@@ -6,16 +6,26 @@
 package hu.icell.graphql.converter;
 
 import graphql.schema.*;
-import org.omg.CORBA.ObjectHelper;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public abstract class AbstractGraphQLConverter<S> implements GraphQLConverter<S, Object> {
 
+    private final String GraphQLInt = "Int";
+    private final String GraphQLFloat = "Float";
+    private final String GraphQLString = "String";
+    private final String GraphQLBoolean = "Boolean";
+
     private final DataFetchingEnvironment dataFetchingEnvironment;
+
+    protected abstract Set<String> getKeys(S sourceObject);
+    protected abstract int getInteger(S sourceObject, String name);
+    protected abstract String getString(S sourceObject,String name);
+    protected abstract double getDouble(S sourceObject,String name);
+    protected abstract boolean getBoolean(S sourceObject,String name);
+    protected abstract Object getObject(S sourceObject,String name);
+    protected abstract List<Object> getList(S sourceObject, String name, GraphQLType baseType);
+    protected abstract boolean hasField(S sourceObject, String name);
 
     public AbstractGraphQLConverter(DataFetchingEnvironment dataFetchingEnvironment){
         this.dataFetchingEnvironment = dataFetchingEnvironment;
@@ -33,27 +43,21 @@ public abstract class AbstractGraphQLConverter<S> implements GraphQLConverter<S,
         return dataFetchingEnvironment.getGraphQLSchema().getObjectType(name);
     }
 
-
-    protected abstract Set<String> getKeys(S sourceObject);
-    protected abstract int getInteger(S sourceObject, String name);
-    protected abstract String getString(S sourceObject,String name);
-    protected abstract double getDouble(S sourceObject,String name);
-    protected abstract boolean getBoolean(S sourceObject,String name);
-    protected abstract Object getList(S sourceObject, String name, GraphQLType baseType);
-    protected abstract boolean hasField(S sourceObject, String name);
     @Override
-    public abstract Object ConvertToGraphQLResponse(S source);
-
-    public Object ConvertIt(S source){
-        GraphQLObjectType objectType = getObjectType(getCurrentFieldType().getName());
-        return Convert(source, objectType);
+    public Object ConvertToGraphQLResponse(S source) {
+        return Convert(source);
     }
 
-    public Object Convert(S sourceObject, GraphQLObjectType objectType) {
+    protected Map<String, Object> Convert(S source) {
+        GraphQLObjectType objectType = getObjectType(getCurrentFieldType().getName());
+        return ConvertToGraphQLObject(source, objectType);
+    }
+
+    protected Map<String, Object> ConvertToGraphQLObject(S sourceObject, GraphQLObjectType objectType) {
         Map<String, Object> propertyMap = new LinkedHashMap<>();
         List<GraphQLFieldDefinition> fieldDefinitions = objectType.getFieldDefinitions();
         for(GraphQLFieldDefinition definition : fieldDefinitions){
-          if( hasField(sourceObject, definition.getName())) {
+          if(hasField(sourceObject, definition.getName())) {
               Object o = ConvertField(sourceObject, definition.getType(), definition.getName());
               propertyMap.put(definition.getName(), o);
           }
@@ -61,25 +65,21 @@ public abstract class AbstractGraphQLConverter<S> implements GraphQLConverter<S,
         return propertyMap;
     }
 
-    protected Object ConvertField(S sourceObject, GraphQLType type, String name){
-        if(type instanceof GraphQLList){
+    private Object ConvertField(S sourceObject, GraphQLType type, String name){
+        if(type instanceof GraphQLList) {
             return getList(sourceObject, name, ((GraphQLList) type).getWrappedType());
         }
         switch (type.getName()) {
-            case "Int":
+            case GraphQLInt:
                 return getInteger(sourceObject, name);
-            case "String":
+            case GraphQLString:
                 return getString(sourceObject, name);
-            case "Float":
+            case GraphQLFloat:
                 return getDouble(sourceObject, name);
-            case "Boolean":
+            case GraphQLBoolean:
                 return getBoolean(sourceObject, name);
             default:
                 return sourceObject;
         }
-
     }
-
-
-
 }

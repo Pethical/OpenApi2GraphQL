@@ -46,15 +46,16 @@ public class JsonObjectToGraphQLConverter extends AbstractGraphQLConverter<JsonO
     }
 
     @Override
-    protected Object getList(JsonObject sourceObject, String name, GraphQLType baseType) {
+    protected Object getObject(JsonObject sourceObject, String name) {
+        return sourceObject.get(name);
+    }
+
+    @Override
+    protected List<Object> getList(JsonObject sourceObject, String name, GraphQLType baseType) {
         JsonArray jsonArray = sourceObject.getJsonArray(name);
         List<Object> list = new ArrayList<>();
         for (int i = 0; i < jsonArray.size(); i++) {
-            Map<String, Object> properties = new LinkedHashMap<>();
-            for (String key : jsonArray.getJsonObject(i).keySet()) {
-                properties.put(key, ConvertField(jsonArray.getJsonObject(i),
-                        getObjectType(baseType.getName()).getFieldDefinition(key).getType(), key));
-            }
+            Map<String, Object> properties = Convert(jsonArray.getJsonObject(i));
             list.add(properties);
         }
         return list;
@@ -67,15 +68,6 @@ public class JsonObjectToGraphQLConverter extends AbstractGraphQLConverter<JsonO
 
     @Override
     public Object ConvertToGraphQLResponse(JsonObject source) {
-        GraphQLObjectType objectType = getObjectType(getCurrentFieldType().getName());
-        Map<String, Object> propertyMap = new LinkedHashMap<>();
-        for (String key : source.keySet()) {
-            if (objectType.getFieldDefinition(key) != null && objectType.getFieldDefinition(key).getType() != null) {
-                GraphQLType type = objectType.getFieldDefinition(key).getType();
-                Object o = ConvertField(source, type, key);
-                propertyMap.put(key, o);
-            }
-        }
-        return propertyMap;
+        return super.ConvertToGraphQLResponse(source);
     }
 }

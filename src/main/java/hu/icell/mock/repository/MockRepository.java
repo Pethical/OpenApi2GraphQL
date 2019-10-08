@@ -3,11 +3,11 @@
  * Author: Péter Németh (Pethical)
  * This code is licensed under MIT license (see LICENSE.md for details)
  */
-package hu.icell.graphql.mock.repository;
+package hu.icell.mock.repository;
 
-import hu.icell.graphql.mock.UserCatRepository;
-import hu.icell.graphql.mock.entity.Cat;
-import hu.icell.graphql.mock.entity.User;
+import hu.icell.mock.entity.User;
+import hu.icell.mock.UserCatRepository;
+import hu.icell.mock.entity.Cat;
 
 import java.util.ArrayList;
 import java.util.Collection;

@@ -12,7 +12,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
 @Path("/o2g")
-public class O2GEndpont {
+public class O2GEndpoint {
 
     @Inject
     private Logger logger;
@@ -20,7 +20,7 @@ public class O2GEndpont {
     @Inject
     private GraphQLSchemaConverter schemaConverter;
 
-    public O2GEndpont(){
+    public O2GEndpoint(){
 
     }
 
@@ -42,5 +42,4 @@ public class O2GEndpont {
             return Response.serverError().build();
         }
     }
-
 }

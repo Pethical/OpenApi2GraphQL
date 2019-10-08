@@ -5,9 +5,9 @@
  */
 package hu.icell.graphql.rest;
 
-import hu.icell.graphql.mock.UserCatRepository;
-import hu.icell.graphql.mock.repository.MockRepository;
-import hu.icell.graphql.mock.entity.User;
+import hu.icell.mock.UserCatRepository;
+import hu.icell.mock.repository.MockRepository;
+import hu.icell.mock.entity.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

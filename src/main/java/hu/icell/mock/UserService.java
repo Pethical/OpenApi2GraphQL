@@ -3,9 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package hu.icell.graphql.mock;
+package hu.icell.mock;
 
-import hu.icell.graphql.mock.entity.User;
+import hu.icell.mock.entity.User;
 import io.leangen.graphql.annotations.GraphQLArgument;
 import io.leangen.graphql.annotations.GraphQLQuery;
 import java.util.Collection;
