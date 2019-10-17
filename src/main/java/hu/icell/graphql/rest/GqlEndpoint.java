@@ -15,6 +15,7 @@ import io.leangen.graphql.GraphQLSchemaGenerator;
 import javax.ws.rs.POST;
 
 @Path("/gql")
+@io.swagger.v3.oas.annotations.Hidden
 public class GqlEndpoint {
 
     private final GraphQL graphQL;
@@ -30,6 +31,7 @@ public class GqlEndpoint {
     
     @POST
     @Produces("application/json")
+    @io.swagger.v3.oas.annotations.Hidden
     public Response query(String query) {
         if (query == null || query.isEmpty()) {
             return Response.status(400).build();

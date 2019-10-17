@@ -9,13 +9,16 @@ import graphql.GraphQL;
 import graphql.schema.*;
 import graphql.schema.idl.*;
 import graphql.schema.idl.RuntimeWiring.Builder;
+import org.openapitools.codegen.CliOption;
+import org.openapitools.codegen.ClientOptInput;
+import org.openapitools.codegen.CodegenConfig;
+import org.openapitools.codegen.CodegenConfigLoader;
+import org.openapitools.codegen.DefaultGenerator;
 
 import static graphql.schema.idl.TypeRuntimeWiring.newTypeWiring;
 
 import hu.icell.graphql.converter.schema.GraphQLSchemaConverter;
-import hu.icell.graphql.openapi.OpenApiDataFetcher;
 import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 
 import javax.inject.Inject;
@@ -23,7 +26,9 @@ import javax.inject.Singleton;
 import javax.servlet.ServletContext;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 
 /**
  * @author peter.nemeth
@@ -46,6 +51,29 @@ public class OpenApiSchemaConverter implements GraphQLSchemaConverter {
             }
         });
 
+        ClientOptInput clientOptInput = new ClientOptInput();
+
+        clientOptInput.openAPI( openAPI);
+        CodegenConfig codegenConfig = CodegenConfigLoader.forName("graphql-schema");
+        codegenConfig.additionalProperties().put("openAPI", openAPI);
+        String outputFolder = getTmpFolder().getAbsolutePath() + File.separator;
+        codegenConfig.setOutputDir(outputFolder);
+
+        DefaultGenerator defaultGenerator = new DefaultGenerator();
+
+        clientOptInput.config(codegenConfig);
+        defaultGenerator.opts(clientOptInput);
+        defaultGenerator.setGenerateMetadata(false);
+        List<File> files = defaultGenerator.generate();
+        StringBuilder schema = new StringBuilder();
+        for (File file : files) {
+            Scanner scanner = new Scanner(file);
+            while(scanner.hasNextLine()) {
+              schema.append(scanner.nextLine());
+              schema.append("\n");
+            }
+        }
+        /*
         InputStream inStream = context.getResourceAsStream("/WEB-INF/schema.gqs");
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inStream, StandardCharsets.UTF_8));
         String inputLine;
@@ -55,9 +83,26 @@ public class OpenApiSchemaConverter implements GraphQLSchemaConverter {
         }
         bufferedReader.close();
         TypeDefinitionRegistry typeRegistry = new SchemaParser().parse(sdl.toString());
+        */
+        String gqlSchema = schema.toString().replaceAll("\\(\\)","");
+        TypeDefinitionRegistry typeRegistry = new SchemaParser().parse(gqlSchema);
         RuntimeWiring runtimeWiring = wiringBuilder.build();
         SchemaGenerator schemaGenerator = new SchemaGenerator();
         GraphQLSchema graphQLSchema = schemaGenerator.makeExecutableSchema(typeRegistry, runtimeWiring);
         return GraphQL.newGraphQL(graphQLSchema).build();
     }
+
+    private static File getTmpFolder() {
+        try {
+            File outputFolder = File.createTempFile("codegen-", "-tmp");
+            outputFolder.delete();
+            outputFolder.mkdir();
+            outputFolder.deleteOnExit();
+            return outputFolder;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Cannot access tmp folder");
+        }
+    }
+
 }

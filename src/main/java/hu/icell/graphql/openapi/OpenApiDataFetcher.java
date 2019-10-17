@@ -8,11 +8,19 @@ package hu.icell.graphql.openapi;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 import hu.icell.graphql.converter.json.JsonToGraphQLConverter;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
+import javax.json.Json;
+import javax.json.JsonReader;
 import javax.json.JsonStructure;
 import java.io.IOException;
+import java.io.StringReader;
+import java.util.Objects;
 
 public class OpenApiDataFetcher implements DataFetcher<Object> {
+
     private final String urlTemplate;
     private String url;
     private final String baseUrl;
@@ -26,10 +34,21 @@ public class OpenApiDataFetcher implements DataFetcher<Object> {
     public Object get(DataFetchingEnvironment dataFetchingEnvironment) throws IOException {
         url = urlTemplate;
         dataFetchingEnvironment.getArguments().forEach((name, value) -> {
+            if(name.endsWith("_")) {
+                name = name.substring(0, name.length()-1).toLowerCase();
+            }
             url = url.replace("{" + name.toString() + "}", value.toString());
         });
         url = url.replaceAll("(\\/)?\\{[A-z,0-9]+}", "");
-        JsonStructure jsonStructure = new OpenApiClient().sendGet(baseUrl+url);
-        return new JsonToGraphQLConverter(dataFetchingEnvironment).ConvertToGraphQLResponse(jsonStructure);
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder().url(baseUrl+url).build();
+        Response response = client.newCall(request).execute();
+        if(response.isSuccessful() && response.body() != null) {
+            JsonReader jsonReader = Json.createReader(new StringReader(Objects.requireNonNull(response.body()).string()));
+            JsonStructure jsonStructure = jsonReader.read();
+            jsonReader.close();
+            return new JsonToGraphQLConverter(dataFetchingEnvironment).ConvertToGraphQLResponse(jsonStructure);
+        }
+        return null;
     }
 }

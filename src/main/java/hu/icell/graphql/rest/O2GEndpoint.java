@@ -12,6 +12,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
 @Path("/o2g")
+@io.swagger.v3.oas.annotations.Hidden
 public class O2GEndpoint {
 
     @Inject
@@ -26,6 +27,7 @@ public class O2GEndpoint {
 
     @POST
     @Produces("application/json")
+    @io.swagger.v3.oas.annotations.Hidden
     public Response gql(String query) {
         if (query == null || query.isEmpty()) {
             return Response.status(400).build();

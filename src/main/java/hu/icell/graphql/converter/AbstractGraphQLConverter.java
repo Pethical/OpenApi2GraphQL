@@ -11,10 +11,10 @@ import java.util.*;
 
 public abstract class AbstractGraphQLConverter<S> implements GraphQLConverter<S, Object> {
 
-    private final String GraphQLInt = "Int";
-    private final String GraphQLFloat = "Float";
-    private final String GraphQLString = "String";
-    private final String GraphQLBoolean = "Boolean";
+    protected final String GraphQLInt = "Int";
+    protected final String GraphQLFloat = "Float";
+    protected final String GraphQLString = "String";
+    protected final String GraphQLBoolean = "Boolean";
 
     private final DataFetchingEnvironment dataFetchingEnvironment;
 
