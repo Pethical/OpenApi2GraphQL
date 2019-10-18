@@ -3,8 +3,8 @@
  * Author: Péter Németh
  * This code is licensed under MIT license (see LICENSE.md for details)
  */
-package hu.icell.graphql.converter;
+package hu.icell.graphql.converter.schema.configuration;
 
-public interface GraphQLConverter<S, T> {
-    T ConvertToGraphQLResponse(S source);
+public abstract class AbstractSchemaConverterConfiguration implements SchemaConverterConfiguration {
+
 }

@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2019 i-Cell Mobilsoft Zrt. All rights reserved
- * Author: Péter Németh (Pethical)
+ * Author: Péter Németh
  * This code is licensed under MIT license (see LICENSE.md for details)
  */
 package hu.icell.graphql.openapi;
@@ -9,7 +9,10 @@ import graphql.GraphQL;
 import graphql.schema.*;
 import graphql.schema.idl.*;
 import graphql.schema.idl.RuntimeWiring.Builder;
-import org.openapitools.codegen.CliOption;
+import hu.icell.graphql.converter.cache.SchemaCache;
+import hu.icell.graphql.converter.schema.AbstractGraphQLSchemaConverter;
+import hu.icell.graphql.openapi.configuration.OpenApiEndPointConfiguration;
+import hu.icell.security.Hasher;
 import org.openapitools.codegen.ClientOptInput;
 import org.openapitools.codegen.CodegenConfig;
 import org.openapitools.codegen.CodegenConfigLoader;
@@ -17,78 +20,55 @@ import org.openapitools.codegen.DefaultGenerator;
 
 import static graphql.schema.idl.TypeRuntimeWiring.newTypeWiring;
 
-import hu.icell.graphql.converter.schema.GraphQLSchemaConverter;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import javax.servlet.ServletContext;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
 
 /**
  * @author peter.nemeth
  */
-@Singleton
-public class OpenApiSchemaConverter implements GraphQLSchemaConverter {
+public class OpenApiSchemaConverter extends AbstractGraphQLSchemaConverter<OpenApiEndPointConfiguration> {
 
-    @Inject
-    private ServletContext context;
+    private Hasher hasher;
 
-    public GraphQL ConvertToGraphQLSchema(String OpenApiJsonUrl) throws IOException {
-        OpenAPI openAPI = new OpenAPIV3Parser().read(OpenApiJsonUrl);
+    public OpenApiSchemaConverter(SchemaCache schemaCache, Hasher hasher) {
+        super(schemaCache);
+        this.hasher = hasher;
+    }
+
+    public GraphQL ConvertToGraphQLSchema(OpenApiEndPointConfiguration endPoint) throws IOException {
+
+        String openAPISchema = null;
+        if(hasher!=null) {
+            String key = hasher.SHA256(endPoint.getOpenAPISchemaUrl());
+            try {
+                openAPISchema = getSchemaCache().getItem(key);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        OpenAPI openAPI = null;
+        if(openAPISchema != null) {
+            openAPI = new OpenAPIV3Parser().readContents(openAPISchema).getOpenAPI();
+        }else {
+            openAPI = new OpenAPIV3Parser().read(endPoint.getOpenAPISchemaUrl());
+        }
         Builder wiringBuilder = RuntimeWiring.newRuntimeWiring();
+        wireOpenAPIEndpoints(endPoint, openAPI, wiringBuilder);
 
-        openAPI.getPaths().keySet().forEach((key) -> {
-            if (openAPI.getPaths().get(key).getGet() != null) {
-                String operationId = openAPI.getPaths().get(key).getGet().getOperationId();
-                wiringBuilder.type(newTypeWiring("Query")
-                        .dataFetcher(operationId, new OpenApiDataFetcher(key, "http://127.0.0.1:8080/poc")));
-            }else if(openAPI.getPaths().get(key).getPost()!=null){
-                String operationId = openAPI.getPaths().get(key).getPost().getOperationId();
-                wiringBuilder.type(newTypeWiring("Mutation")
-                        .dataFetcher(operationId, new OpenApiDataFetcher(key, "http://127.0.0.1:8080/poc")));
-            }
-        });
-
-        ClientOptInput clientOptInput = new ClientOptInput();
-
-        clientOptInput.openAPI( openAPI);
-        CodegenConfig codegenConfig = CodegenConfigLoader.forName("graphql-schema");
-        codegenConfig.additionalProperties().put("openAPI", openAPI);
-        String outputFolder = getTmpFolder().getAbsolutePath() + File.separator;
-        codegenConfig.setOutputDir(outputFolder);
-
-        DefaultGenerator defaultGenerator = new DefaultGenerator();
-
-        clientOptInput.config(codegenConfig);
-        defaultGenerator.opts(clientOptInput);
-        defaultGenerator.setGenerateMetadata(false);
-        List<File> files = defaultGenerator.generate();
-        StringBuilder schema = new StringBuilder();
-        for (File file : files) {
-            Scanner scanner = new Scanner(file);
-            while(scanner.hasNextLine()) {
-              schema.append(scanner.nextLine());
-              schema.append("\n");
-            }
+        String gqlSchema = null;
+        try {
+            gqlSchema = getGraphQLSchemaText(endPoint);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        /*
-        InputStream inStream = context.getResourceAsStream("/WEB-INF/schema.gqs");
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inStream, StandardCharsets.UTF_8));
-        String inputLine;
-        StringBuilder sdl = new StringBuilder();
-        while ((inputLine = bufferedReader.readLine()) != null) {
-            sdl.append(inputLine);
+        if(gqlSchema==null || gqlSchema.isEmpty()) {
+            gqlSchema = GenerateSchema(endPoint, openAPI);
         }
-        bufferedReader.close();
-        TypeDefinitionRegistry typeRegistry = new SchemaParser().parse(sdl.toString());
-        */
-        String gqlSchema = schema.toString().replaceAll("\\(\\)","").replaceAll("query", "Query");
+        assert !gqlSchema.isEmpty() : "Invalid or empty schema";
         TypeDefinitionRegistry typeRegistry = new SchemaParser().parse(gqlSchema);
         RuntimeWiring runtimeWiring = wiringBuilder.build();
         SchemaGenerator schemaGenerator = new SchemaGenerator();
@@ -96,11 +76,71 @@ public class OpenApiSchemaConverter implements GraphQLSchemaConverter {
         return GraphQL.newGraphQL(graphQLSchema).build();
     }
 
-    private static File getTmpFolder() {
+    private void wireOpenAPIEndpoints(OpenApiEndPointConfiguration endPoint, OpenAPI openAPI, Builder wiringBuilder) {
+        openAPI.getPaths().keySet().forEach((key) -> {
+            if (openAPI.getPaths().get(key).getGet() != null) {
+                String operationId = openAPI.getPaths().get(key).getGet().getOperationId();
+                wiringBuilder.type(newTypeWiring("Query")
+                        .dataFetcher(operationId, new OpenApiDataFetcher(key, endPoint.getBaseUrl())));
+            } else if(openAPI.getPaths().get(key).getPost()!=null){
+                String operationId = openAPI.getPaths().get(key).getPost().getOperationId();
+                wiringBuilder.type(newTypeWiring("Mutation")
+                        .dataFetcher(operationId, new OpenApiDataFetcher(key, endPoint.getBaseUrl())));
+            }
+        });
+    }
+
+    private String GenerateSchema(OpenApiEndPointConfiguration endPoint, OpenAPI openAPI) throws FileNotFoundException {
+
+        DefaultGenerator defaultGenerator = getDefaultGenerator(openAPI);
+        String gqlSchema = parseGeneratedFiles(defaultGenerator);
         try {
+            setGraphQLSchemaText(endPoint, gqlSchema);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return gqlSchema;
+    }
+
+    private String parseGeneratedFiles(DefaultGenerator defaultGenerator) throws FileNotFoundException {
+        List<File> files = defaultGenerator.generate();
+        StringBuilder schema = new StringBuilder();
+        for (File file : files) {
+            Scanner scanner = new Scanner(file);
+            while (scanner.hasNextLine()) {
+                schema.append(scanner.nextLine());
+                schema.append("\n");
+            }
+        }
+        return schema.toString().replaceAll("\\(\\)", "").replaceAll("query", "Query");
+    }
+
+    private DefaultGenerator getDefaultGenerator(OpenAPI openAPI) {
+        File tempFolder = getTmpFolder();
+        assert tempFolder!=null;
+        String outputFolder = tempFolder.getAbsolutePath() + File.separator;
+        CodegenConfig codegenConfig = CodegenConfigLoader.forName("graphql-schema");
+        codegenConfig.additionalProperties().put("openAPI", openAPI);
+        codegenConfig.setOutputDir(outputFolder);
+
+        ClientOptInput clientOptInput = new ClientOptInput();
+        clientOptInput.openAPI(openAPI);
+        clientOptInput.config(codegenConfig);
+
+        DefaultGenerator defaultGenerator = new DefaultGenerator();
+        defaultGenerator.opts(clientOptInput);
+        defaultGenerator.setGenerateMetadata(false);
+        return defaultGenerator;
+    }
+
+    private File getTmpFolder() {
+        try {
+            /*
+              @Todo File => String
+             */
             File outputFolder = File.createTempFile("codegen-", "-tmp");
-            outputFolder.delete();
-            outputFolder.mkdir();
+            if(!outputFolder.delete()) return null;
+            if(!outputFolder.mkdir()) return null;
             outputFolder.deleteOnExit();
             return outputFolder;
         } catch (Exception e) {

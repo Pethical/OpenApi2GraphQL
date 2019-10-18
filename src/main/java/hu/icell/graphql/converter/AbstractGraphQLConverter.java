@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2019 i-Cell Mobilsoft Zrt. All rights reserved
- * Author: peter.nemeth
+ * Author: Péter Németh
  * This code is licensed under MIT license (see LICENSE.md for details)
  */
 package hu.icell.graphql.converter;
@@ -69,7 +69,7 @@ public abstract class AbstractGraphQLConverter<S> implements GraphQLConverter<S,
         if(type instanceof GraphQLList) {
             return getList(sourceObject, name, ((GraphQLList) type).getWrappedType());
         }
-        if(type instanceof  GraphQLNonNull){
+        if(type instanceof  GraphQLNonNull) {
             type = ((GraphQLNonNull) type).getWrappedType();
         }
         switch (type.getName()) {

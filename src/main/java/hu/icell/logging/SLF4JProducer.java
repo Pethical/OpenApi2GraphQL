@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2019 i-Cell Mobilsoft Zrt. All rights reserved
- * Author: Péter Németh (Pethical)
+ * Author: Péter Németh
  * This code is licensed under MIT license (see LICENSE.md for details)
  */
-package hu.icell.graphql.logging;
+package hu.icell.logging;
 
 import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.InjectionPoint;

@@ -1,12 +1,11 @@
 /*
  * Copyright (c) 2019 i-Cell Mobilsoft Zrt. All rights reserved
- * Author: peter.nemeth
+ * Author: Péter Németh
  * This code is licensed under MIT license (see LICENSE.md for details)
  */
 package hu.icell.graphql.converter.json;
 
 import graphql.schema.DataFetchingEnvironment;
-import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLType;
 import hu.icell.graphql.converter.AbstractGraphQLConverter;
 

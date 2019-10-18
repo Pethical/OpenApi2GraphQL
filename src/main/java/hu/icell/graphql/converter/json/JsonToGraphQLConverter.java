@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2019 i-Cell Mobilsoft Zrt. All rights reserved
- * Author: Péter Németh (Pethical)
+ * Author: Péter Németh
  * This code is licensed under MIT license (see LICENSE.md for details)
  */
 package hu.icell.graphql.converter.json;
@@ -34,31 +34,37 @@ public class JsonToGraphQLConverter extends AbstractGraphQLConverter<JsonStructu
 
     @Override
     protected int getInteger(JsonStructure sourceObject, String name) {
+        assert sourceObject instanceof JsonObject;
         return ((JsonObject) sourceObject).getInt(name);
     }
 
     @Override
     protected String getString(JsonStructure sourceObject, String name) {
+        assert sourceObject instanceof JsonObject;
         return ((JsonObject)sourceObject).get(name).toString();
     }
 
     @Override
     protected double getDouble(JsonStructure sourceObject, String name) {
+        assert sourceObject instanceof JsonObject;
         return ((JsonObject)sourceObject).getJsonNumber(name).doubleValue();
     }
 
     @Override
     protected boolean getBoolean(JsonStructure sourceObject, String name) {
+        assert sourceObject instanceof JsonObject;
         return ((JsonObject)sourceObject).getBoolean(name);
     }
 
     @Override
     protected Object getObject(JsonStructure sourceObject, String name) {
+        assert sourceObject instanceof JsonObject;
         return ((JsonObject)sourceObject).get(name);
     }
 
     @Override
     protected List<Object> getList(JsonStructure sourceObject, String name, GraphQLType baseType) {
+        assert sourceObject instanceof JsonObject;
         JsonArray jsonArray = ((JsonObject) sourceObject).getJsonArray(name);
         List<Object> list = new ArrayList<>();
         for (int i = 0; i < jsonArray.size(); i++) {
@@ -79,7 +85,7 @@ public class JsonToGraphQLConverter extends AbstractGraphQLConverter<JsonStructu
 
     private Map<String, Object> MapJsonArray(JsonObject jsonObject) {
         GraphQLType graphQLType = getCurrentFieldType();
-        if (!(graphQLType instanceof GraphQLList)) throw new IllegalArgumentException("Not a list");
+        assert graphQLType instanceof GraphQLList;
         GraphQLType baseType = ((GraphQLList) graphQLType).getWrappedType();
         GraphQLObjectType objectType = getObjectType(baseType.getName());
         return ConvertToGraphQLObject(jsonObject, objectType);

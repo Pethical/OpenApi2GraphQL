@@ -1,7 +1,7 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (c) 2019 i-Cell Mobilsoft Zrt. All rights reserved
+ * Author: Péter Németh
+ * This code is licensed under MIT license (see LICENSE.md for details)
  */
 package hu.icell.graphql.rest;
 
@@ -18,10 +18,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
-import java.util.List;
 
 /**
- *
  * @author peter.nemeth
  */
 @Path("/api")
