@@ -69,6 +69,9 @@ public abstract class AbstractGraphQLConverter<S> implements GraphQLConverter<S,
         if(type instanceof GraphQLList) {
             return getList(sourceObject, name, ((GraphQLList) type).getWrappedType());
         }
+        if(type instanceof  GraphQLNonNull){
+            type = ((GraphQLNonNull) type).getWrappedType();
+        }
         switch (type.getName()) {
             case GraphQLInt:
                 return getInteger(sourceObject, name);

@@ -48,6 +48,10 @@ public class OpenApiSchemaConverter implements GraphQLSchemaConverter {
                 String operationId = openAPI.getPaths().get(key).getGet().getOperationId();
                 wiringBuilder.type(newTypeWiring("Query")
                         .dataFetcher(operationId, new OpenApiDataFetcher(key, "http://127.0.0.1:8080/poc")));
+            }else if(openAPI.getPaths().get(key).getPost()!=null){
+                String operationId = openAPI.getPaths().get(key).getPost().getOperationId();
+                wiringBuilder.type(newTypeWiring("Mutation")
+                        .dataFetcher(operationId, new OpenApiDataFetcher(key, "http://127.0.0.1:8080/poc")));
             }
         });
 
@@ -60,7 +64,7 @@ public class OpenApiSchemaConverter implements GraphQLSchemaConverter {
         codegenConfig.setOutputDir(outputFolder);
 
         DefaultGenerator defaultGenerator = new DefaultGenerator();
-
+        
         clientOptInput.config(codegenConfig);
         defaultGenerator.opts(clientOptInput);
         defaultGenerator.setGenerateMetadata(false);
@@ -84,7 +88,11 @@ public class OpenApiSchemaConverter implements GraphQLSchemaConverter {
         bufferedReader.close();
         TypeDefinitionRegistry typeRegistry = new SchemaParser().parse(sdl.toString());
         */
-        String gqlSchema = schema.toString().replaceAll("\\(\\)","");
+        String gqlSchema = schema.toString().replaceAll("\\(\\)","").replaceAll("query", "Query");
+        File tempFile = File.createTempFile("gqlpoc","poc");
+        BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
+        writer.write(gqlSchema);
+        writer.close();
         TypeDefinitionRegistry typeRegistry = new SchemaParser().parse(gqlSchema);
         RuntimeWiring runtimeWiring = wiringBuilder.build();
         SchemaGenerator schemaGenerator = new SchemaGenerator();

@@ -13,12 +13,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
@@ -61,7 +59,16 @@ public class OpenApiEndPoint {
     public Response GetUsers(){
         return Response.ok(repository.getUsers()).build();
     }
-    
+    @POST
+    @Path("/user/{id}")
+    @Produces("application/json")
+    @Operation(responses = {
+            @ApiResponse(content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class)))
+    })
+    public Response UpdateUser(@PathParam("id") int id, @RequestBody User user) {
+        return Response.ok(repository.findCatById(id)).build();
+    }
+
     @GET    
     @Produces("application/json")
     @Path("/cats/{isLive}")

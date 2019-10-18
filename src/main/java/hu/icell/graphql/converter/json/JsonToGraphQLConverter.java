@@ -39,7 +39,7 @@ public class JsonToGraphQLConverter extends AbstractGraphQLConverter<JsonStructu
 
     @Override
     protected String getString(JsonStructure sourceObject, String name) {
-        return ((JsonObject)sourceObject).getString(name);
+        return ((JsonObject)sourceObject).get(name).toString();
     }
 
     @Override

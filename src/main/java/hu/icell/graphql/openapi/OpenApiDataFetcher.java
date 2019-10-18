@@ -34,10 +34,11 @@ public class OpenApiDataFetcher implements DataFetcher<Object> {
     public Object get(DataFetchingEnvironment dataFetchingEnvironment) throws IOException {
         url = urlTemplate;
         dataFetchingEnvironment.getArguments().forEach((name, value) -> {
-            if(name.endsWith("_")) {
-                name = name.substring(0, name.length()-1).toLowerCase();
+            String paramname = name;
+            if(paramname.endsWith("_")) {
+                paramname = name.substring(0, name.length()-1).toLowerCase();
             }
-            url = url.replace("{" + name.toString() + "}", value.toString());
+            url = url.replace("{" + paramname + "}", value.toString());
         });
         url = url.replaceAll("(\\/)?\\{[A-z,0-9]+}", "");
         OkHttpClient client = new OkHttpClient();
