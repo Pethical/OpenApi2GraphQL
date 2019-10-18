@@ -64,7 +64,7 @@ public class OpenApiSchemaConverter implements GraphQLSchemaConverter {
         codegenConfig.setOutputDir(outputFolder);
 
         DefaultGenerator defaultGenerator = new DefaultGenerator();
-        
+
         clientOptInput.config(codegenConfig);
         defaultGenerator.opts(clientOptInput);
         defaultGenerator.setGenerateMetadata(false);
@@ -89,10 +89,6 @@ public class OpenApiSchemaConverter implements GraphQLSchemaConverter {
         TypeDefinitionRegistry typeRegistry = new SchemaParser().parse(sdl.toString());
         */
         String gqlSchema = schema.toString().replaceAll("\\(\\)","").replaceAll("query", "Query");
-        File tempFile = File.createTempFile("gqlpoc","poc");
-        BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
-        writer.write(gqlSchema);
-        writer.close();
         TypeDefinitionRegistry typeRegistry = new SchemaParser().parse(gqlSchema);
         RuntimeWiring runtimeWiring = wiringBuilder.build();
         SchemaGenerator schemaGenerator = new SchemaGenerator();
