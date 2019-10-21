@@ -21,11 +21,14 @@ public abstract class AbstractGraphQLSchemaConverter<T extends AbstractSchemaCon
 
     protected void setGraphQLSchemaText(T configuration, String schema) throws Exception {
         graphQLSchema = schema;
-        schemaCache.setItem(configuration.getUniqueId(), graphQLSchema);
+        if(schemaCache!=null)
+            schemaCache.setItem(configuration.getUniqueId(), graphQLSchema);
     }
 
     protected String getGraphQLSchemaText(T configuration) throws Exception {
-        graphQLSchema = schemaCache.getItem(configuration.getUniqueId());
+        if(schemaCache!=null) {
+            graphQLSchema = schemaCache.getItem(configuration.getUniqueId());
+        }
         return graphQLSchema;
     }
 

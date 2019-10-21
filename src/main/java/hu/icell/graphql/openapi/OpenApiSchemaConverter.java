@@ -40,9 +40,8 @@ public class OpenApiSchemaConverter extends AbstractGraphQLSchemaConverter<OpenA
     }
 
     public GraphQL ConvertToGraphQLSchema(OpenApiEndPointConfiguration endPoint) throws IOException {
-
         String openAPISchema = null;
-        if(hasher!=null) {
+        if(hasher!=null && getSchemaCache()!=null) {
             String key = hasher.SHA256(endPoint.getOpenAPISchemaUrl());
             try {
                 openAPISchema = getSchemaCache().getItem(key);

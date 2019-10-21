@@ -41,6 +41,10 @@ public class OpenApiDataFetcher implements DataFetcher<Object> {
             url = url.replace("{" + paramname + "}", value.toString());
         });
         url = url.replaceAll("(\\/)?\\{[A-z,0-9]+}", "");
+        return getOpenApiResponse(dataFetchingEnvironment, url);
+    }
+
+    private Object getOpenApiResponse(DataFetchingEnvironment dataFetchingEnvironment, String url) throws IOException {
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder().url(baseUrl+url).build();
         Response response = client.newCall(request).execute();
