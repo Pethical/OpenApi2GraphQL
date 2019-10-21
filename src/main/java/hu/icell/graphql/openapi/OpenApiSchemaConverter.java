@@ -32,7 +32,7 @@ import java.util.Scanner;
  */
 public class OpenApiSchemaConverter extends AbstractGraphQLSchemaConverter<OpenApiEndPointConfiguration> {
 
-    private Hasher hasher;
+    private final Hasher hasher;
 
     public OpenApiSchemaConverter(SchemaCache schemaCache, Hasher hasher) {
         super(schemaCache);
@@ -49,7 +49,7 @@ public class OpenApiSchemaConverter extends AbstractGraphQLSchemaConverter<OpenA
                 e.printStackTrace();
             }
         }
-        OpenAPI openAPI = null;
+        OpenAPI openAPI;
         if(openAPISchema != null) {
             openAPI = new OpenAPIV3Parser().readContents(openAPISchema).getOpenAPI();
         }else {

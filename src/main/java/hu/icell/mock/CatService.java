@@ -17,10 +17,10 @@ import java.util.Collection;
  */
 public class CatService {
 
-    private final UserCatRepository respository;
+    private final UserCatRepository repository;
 
-    public CatService(UserCatRepository respository) {
-        this.respository = respository;
+    public CatService(UserCatRepository repository) {
+        this.repository = repository;
     }
 
     @GraphQLQuery(name = "cat")
@@ -28,7 +28,7 @@ public class CatService {
         if (id == null) {
             return null;
         }
-        return respository.findCatById(id);
+        return repository.findCatById(id);
     }
 
     @GraphQLQuery(name = "cat")
@@ -36,12 +36,12 @@ public class CatService {
         if (name == null || name.isEmpty()) {
             return null;
         }
-        return respository.findCatByName(name);
+        return repository.findCatByName(name);
     }
 
     @GraphQLQuery(name = "cats")
     public Collection<Cat> getAll() {
-        return respository.getCats();
+        return repository.getCats();
     }
 
     @GraphQLQuery(name = "cats")
@@ -49,7 +49,7 @@ public class CatService {
         if (isLive == null) {
             return null;
         }
-        return respository.findCatByLive(isLive);
+        return repository.findCatByLive(isLive);
     }
 
 }

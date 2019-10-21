@@ -11,10 +11,10 @@ import java.util.*;
 
 public abstract class AbstractGraphQLConverter<S> implements GraphQLConverter<S, Object> {
 
-    protected final String GraphQLInt = "Int";
-    protected final String GraphQLFloat = "Float";
-    protected final String GraphQLString = "String";
-    protected final String GraphQLBoolean = "Boolean";
+    private final String GraphQLInt = "Int";
+    private final String GraphQLFloat = "Float";
+    private final String GraphQLString = "String";
+    private final String GraphQLBoolean = "Boolean";
 
     private final DataFetchingEnvironment dataFetchingEnvironment;
 
@@ -27,7 +27,7 @@ public abstract class AbstractGraphQLConverter<S> implements GraphQLConverter<S,
     protected abstract List<Object> getList(S sourceObject, String name, GraphQLType baseType);
     protected abstract boolean hasField(S sourceObject, String name);
 
-    public AbstractGraphQLConverter(DataFetchingEnvironment dataFetchingEnvironment){
+    protected AbstractGraphQLConverter(DataFetchingEnvironment dataFetchingEnvironment){
         this.dataFetchingEnvironment = dataFetchingEnvironment;
     }
 
@@ -48,7 +48,7 @@ public abstract class AbstractGraphQLConverter<S> implements GraphQLConverter<S,
         return Convert(source);
     }
 
-    protected Map<String, Object> Convert(S source) {
+    private Map<String, Object> Convert(S source) {
         GraphQLObjectType objectType = getObjectType(getCurrentFieldType().getName());
         return ConvertToGraphQLObject(source, objectType);
     }

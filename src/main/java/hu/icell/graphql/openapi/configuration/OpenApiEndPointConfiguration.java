@@ -12,7 +12,7 @@ public class OpenApiEndPointConfiguration extends AbstractSchemaConverterConfigu
 
     private String baseUrl;
     private String openAPISchemaUrl;
-    private Hasher hasher;
+    private final Hasher hasher;
 
     public OpenApiEndPointConfiguration(String baseUrl, String openAPISchemaUrl, Hasher hasher)
     {

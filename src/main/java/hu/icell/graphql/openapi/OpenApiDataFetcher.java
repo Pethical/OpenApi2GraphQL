@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.Objects;
 
-public class OpenApiDataFetcher implements DataFetcher<Object> {
+class OpenApiDataFetcher implements DataFetcher<Object> {
 
     private final String urlTemplate;
     private String url;

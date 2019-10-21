@@ -19,8 +19,8 @@ public class UserService {
 
     private final UserCatRepository repository;
 
-    public UserService(UserCatRepository respository) {
-        this.repository = respository;
+    public UserService(UserCatRepository repository) {
+        this.repository = repository;
     }
 
     @GraphQLQuery(name = "user")

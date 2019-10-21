@@ -12,10 +12,10 @@ import hu.icell.graphql.converter.schema.configuration.AbstractSchemaConverterCo
 public abstract class AbstractGraphQLSchemaConverter<T extends AbstractSchemaConverterConfiguration>
         implements GraphQLSchemaConverter<T> {
 
-    private SchemaCache schemaCache;
+    private final SchemaCache schemaCache;
     private String graphQLSchema;
 
-    public AbstractGraphQLSchemaConverter(SchemaCache schemaCache){
+    protected AbstractGraphQLSchemaConverter(SchemaCache schemaCache){
         this.schemaCache = schemaCache;
     }
 
