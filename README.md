@@ -3,4 +3,4 @@
 [![Build Status](https://travis-ci.org/Pethical/OpenApi2GraphQL.svg?branch=master)](https://travis-ci.org/Pethical/OpenApi2GraphQL)
 [![CodeFactor](https://www.codefactor.io/repository/github/pethical/openapi2graphql/badge)](https://www.codefactor.io/repository/github/pethical/openapi2graphql)
 
-With this module you can server your OpenAPI endpoints as GraphQL 
+With this module you can serve your OpenAPI endpoints as GraphQL 
