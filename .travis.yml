@@ -1,7 +1,7 @@
 language: java
 dist: trusty
 jdk: oraclejdk8
-script: 
+script:
  - mvn clean
  - mvn test
  - mvn package
